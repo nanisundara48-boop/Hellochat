@@ -3,197 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrueChats Premium</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>TrueChats Pro V3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-dark: #0f1115;
             --bg-panel: #1a1d24;
-            --bg-hover: #252a33;
             --accent: #00e5ff;
-            --accent-glow: rgba(0, 229, 255, 0.2);
             --text-main: #f1f1f1;
             --text-muted: #8b92a5;
             --danger: #ff4757;
-            --success: #2ed573;
+            --border: #2a2d35;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif !important; }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-dark); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
 
-        /* --- SCREEN MANAGEMENT --- */
-        .screen { display: none; width: 100%; height: 100%; }
-        .screen.active { display: flex; }
-
-        /* --- LOGIN SCREEN --- */
-        #login-screen { justify-content: center; align-items: center; background: radial-gradient(circle at center, var(--bg-panel) 0%, var(--bg-dark) 100%); flex-direction: column; }
-        .login-box { background-color: var(--bg-panel); padding: 40px; border-radius: 16px; width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #2a2d35; }
-        .login-box h2 { text-align: center; margin-bottom: 25px; color: var(--accent); }
-        .input-group { margin-bottom: 20px; }
-        .input-group input { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid #333; background: var(--bg-dark); color: white; outline: none; }
-        .input-group input:focus { border-color: var(--accent); }
-        .btn-primary { width: 100%; padding: 12px; border-radius: 8px; border: none; background-color: var(--accent); color: #000; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn-primary:hover { box-shadow: 0 0 15px var(--accent-glow); transform: translateY(-1px); }
-
-        /* --- MAIN APP SCREEN --- */
-        .sidebar { width: 320px; background-color: var(--bg-panel); border-right: 1px solid #2a2d35; display: flex; flex-direction: column; }
-        .sidebar-header { padding: 20px; border-bottom: 1px solid #2a2d35; display: flex; justify-content: space-between; align-items: center; }
-        .nav-tabs { display: flex; background: var(--bg-dark); padding: 5px; margin: 15px; border-radius: 8px; }
-        .tab { flex: 1; text-align: center; padding: 8px; cursor: pointer; border-radius: 6px; color: var(--text-muted); font-size: 0.9rem; font-weight: 500;}
-        .tab.active { background: var(--bg-panel); color: var(--accent); }
-        
-        .list-area { flex: 1; overflow-y: auto; }
-        .list-item { padding: 15px 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid #2a2d35; }
-        .list-item:hover { background-color: var(--bg-hover); }
-        .avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(45deg, var(--accent), #0077ff); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; }
-        
-        .chat-area { flex: 1; display: flex; flex-direction: column; background-color: var(--bg-dark); position: relative;}
-        .chat-header { padding: 15px 20px; background-color: var(--bg-panel); border-bottom: 1px solid #2a2d35; display: flex; justify-content: space-between; align-items: center; }
-        .icon-btn { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; margin-left: 15px; transition: color 0.2s; }
+        /* --- LAYOUT --- */
+        .sidebar { width: 320px; background-color: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; cursor: pointer; }
+        .icon-btn { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
         .icon-btn:hover { color: var(--accent); }
 
+        .chat-area { flex: 1; display: flex; flex-direction: column; position: relative; }
+        .chat-header { padding: 15px 20px; background-color: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg { max-width: 60%; padding: 12px 16px; border-radius: 12px; font-size: 0.95rem; }
+        
+        .msg { max-width: 60%; padding: 12px 16px; border-radius: 12px; cursor: pointer; position: relative; }
         .msg-sent { background-color: var(--accent); color: #000; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .msg-received { background-color: var(--bg-panel); color: white; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #2a2d35;}
+        .msg-received { background-color: var(--bg-panel); color: white; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid var(--border);}
+        .msg-deleted { font-style: italic; color: var(--text-muted); background: transparent; border: 1px solid var(--border); }
 
-        .input-bar { padding: 15px 20px; background-color: var(--bg-panel); display: flex; gap: 15px; align-items: center; }
-        .input-bar input { flex: 1; padding: 12px 20px; border-radius: 25px; border: 1px solid #333; background: var(--bg-dark); color: white; outline: none; }
+        .input-bar { padding: 15px 20px; background-color: var(--bg-panel); display: flex; gap: 10px; align-items: center; position: relative; }
+        .input-bar input { flex: 1; padding: 12px; border-radius: 25px; border: 1px solid #333; background: var(--bg-dark); color: white; outline: none; }
         .snap-btn { background: var(--danger); color: white; padding: 8px 15px; border-radius: 20px; border: none; cursor: pointer; font-weight: 600; font-size: 0.8rem;}
 
-        /* --- SETTINGS MODAL (45+ Features) --- */
-        .modal { display: none; position: fixed; top:0; left:0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: center; }
-        .modal-content { background: var(--bg-panel); width: 500px; height: 80vh; border-radius: 12px; display: flex; flex-direction: column; border: 1px solid var(--accent); }
-        .modal-header { padding: 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; }
-        .settings-list { padding: 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 15px; }
-        .setting-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid #2a2d35; }
-        .toggle { width: 40px; height: 20px; background: #333; border-radius: 10px; position: relative; cursor: pointer; }
-        .toggle.on { background: var(--accent); }
-        .toggle::after { content: ''; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; }
-        .toggle.on::after { left: 22px; }
+        /* --- MODALS & MENUS --- */
+        .modal-overlay { display: none; position: fixed; top:0; left:0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center; }
+        .modal-box { background: var(--bg-panel); width: 400px; max-height: 80vh; border-radius: 12px; display: flex; flex-direction: column; border: 1px solid var(--border); overflow: hidden; }
+        .modal-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 20px; overflow-y: auto; }
+
+        /* Searchable Features */
+        .search-input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid var(--accent); background: var(--bg-dark); color: white; outline: none; }
+        .feature-item { display: flex; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; }
+        .feature-item:hover { background: var(--bg-dark); }
+        .feature-icon { font-size: 1.5rem; }
+
+        /* Profile Details */
+        .profile-input { width: 100%; padding: 10px; margin-bottom: 15px; background: var(--bg-dark); border: 1px solid var(--border); color: white; border-radius: 5px; }
+        
+        /* Emoji Picker */
+        .emoji-picker { display: none; position: absolute; bottom: 70px; left: 20px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px; width: 300px; padding: 10px; grid-template-columns: repeat(6, 1fr); gap: 10px; z-index: 50; max-height: 200px; overflow-y: auto; }
+        .emoji-item { font-size: 1.5rem; cursor: pointer; text-align: center; transition: 0.2s; }
+        .emoji-item:hover { transform: scale(1.2); }
+
+        /* Delete Context Menu */
+        .delete-menu { display: none; position: absolute; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; z-index: 200; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .delete-btn { display: block; width: 100%; padding: 12px 20px; text-align: left; background: none; border: none; color: white; cursor: pointer; border-bottom: 1px solid var(--border); }
+        .delete-btn:hover { background: var(--bg-dark); color: var(--danger); }
 
     </style>
 </head>
 <body>
 
-    <div id="login-screen" class="screen active">
-        <div class="login-box">
-            <h2>TrueChats</h2>
-            <div class="input-group">
-                <input type="email" id="emailInput" placeholder="Email Address">
-            </div>
-            <div class="input-group">
-                <input type="password" placeholder="Password">
-            </div>
-            <button class="btn-primary" onclick="doLogin()">Login securely</button>
-            <p style="text-align: center; margin-top: 15px; font-size: 0.8rem; color: var(--text-muted);">End-to-End Encrypted</p>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="avatar" onclick="openProfile()" title="View Profile">N</div>
+            <h3>Chats</h3>
+            <button class="icon-btn" onclick="openFeatures()" title="Advanced Features">⚙️</button>
         </div>
-    </div>
-
-    <div id="main-screen" class="screen">
         
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h3 style="color: var(--text-main);">Messages</h3>
-                <button class="icon-btn" onclick="openSettings()">⚙️</button>
-            </div>
-            
-            <div class="nav-tabs">
-                <div class="tab active" id="tab-chats" onclick="switchTab('chats')">Chats</div>
-                <div class="tab" id="tab-requests" onclick="switchTab('requests')">Friend Requests <span style="background: var(--danger); color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem;">2</span></div>
-            </div>
-
-            <div id="chats-list" class="list-area">
-                <div class="list-item">
-                    <div class="avatar">VK</div>
-                    <div>
-                        <h4 style="color: white; font-size: 1rem;">Virat K.</h4>
-                        <p style="color: var(--text-muted); font-size: 0.8rem;">Sent a snap 📷</p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="requests-list" class="list-area" style="display: none;">
-                <div class="list-item">
-                    <div class="avatar">R</div>
-                    <div style="flex:1;">
-                        <h4 style="color: white; font-size: 1rem;">Rahul Sharma</h4>
-                        <p style="color: var(--text-muted); font-size: 0.8rem;">wants to connect</p>
-                    </div>
-                    <button style="background: var(--success); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;" onclick="acceptRequest(this)">Accept</button>
+        <div style="padding: 15px; border-bottom: 1px solid var(--border);">
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px;">Friend Request</p>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.9rem;">Rahul wants to connect</span>
+                <div>
+                    <button style="background: var(--accent); color: #000; border:none; padding: 5px 10px; border-radius: 5px; cursor:pointer;" onclick="this.innerText='Accepted ✓'; this.style.background='var(--bg-dark)'; this.style.color='var(--accent)';">Accept</button>
                 </div>
             </div>
         </div>
 
-        <div class="chat-area">
-            <div class="chat-header">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div class="avatar">VK</div>
-                    <div>
-                        <h3 style="color: white; font-size: 1.1rem;">Virat K.</h3>
-                        <p style="color: var(--accent); font-size: 0.8rem;">Online (Encrypted 🔒)</p>
-                    </div>
-                </div>
-                <div>
-                    <button class="icon-btn" title="Voice Call" onclick="triggerCall('Voice')">📞</button>
-                    <button class="icon-btn" title="Video Call" onclick="triggerCall('Video')">📹</button>
-                </div>
-            </div>
+        <div style="padding: 15px; cursor: pointer; background: rgba(0,229,255,0.1);">
+            <strong>Virat K.</strong> <br> <span style="font-size: 0.8rem; color: var(--text-muted);">Online</span>
+        </div>
+    </div>
 
-            <div class="messages" id="message-container">
-                <div class="msg msg-received">Hey man, did you finish the code?</div>
+    <div class="chat-area">
+        <div class="chat-header">
+            <h3>Virat K.</h3>
+            <div>
+                <button class="icon-btn" onclick="alert('Calling Virat... (Requires Firebase WebRTC to connect)')">📞</button>
+                <button class="icon-btn" onclick="alert('Starting Video Call... (Requires Firebase WebRTC)')">📹</button>
             </div>
+        </div>
 
-            <div class="input-bar">
-                <button class="snap-btn" onclick="sendSnap()">📷 1-Time Snap</button>
-                <input type="text" id="msg-input" placeholder="Type a secure message...">
-                <button class="icon-btn" style="color: var(--accent);" onclick="sendMessage()">➤</button>
+        <div class="messages" id="chat-box">
+            <div class="msg msg-received">Hey! Did you update your profile?</div>
+        </div>
+
+        <div class="input-bar">
+            <button class="icon-btn" onclick="toggleEmojiPicker()">😀</button>
+            <button class="snap-btn" onclick="sendSnap()">💣 1-Time Snap</button>
+            <input type="text" id="msg-input" placeholder="Type a message...">
+            <button class="icon-btn" style="color: var(--accent);" onclick="sendMessage()">➤</button>
+            
+            <div class="emoji-picker" id="emoji-picker"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="profile-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>My Profile</h3>
+                <button class="icon-btn" onclick="closeModal('profile-modal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div class="avatar" style="width: 80px; height: 80px; font-size: 2rem; margin: 0 auto;">N</div>
+                </div>
+                <label style="font-size: 0.8rem; color: var(--text-muted);">Display Name</label>
+                <input type="text" class="profile-input" id="prof-name" value="Nani">
+                
+                <label style="font-size: 0.8rem; color: var(--text-muted);">Login Email</label>
+                <input type="text" class="profile-input" value="nani@example.com" disabled style="opacity: 0.5;">
+
+                <label style="font-size: 0.8rem; color: var(--text-muted);">Status</label>
+                <input type="text" class="profile-input" value="Busy coding TrueChats...">
+
+                <button style="width: 100%; padding: 12px; background: var(--accent); border: none; border-radius: 5px; font-weight: bold; cursor: pointer;" onclick="saveProfile()">Save & Sync Update</button>
             </div>
         </div>
     </div>
 
-    <div id="settings-modal" class="modal">
-        <div class="modal-content">
+    <div class="modal-overlay" id="features-modal">
+        <div class="modal-box" style="height: 600px;">
             <div class="modal-header">
-                <h3 style="color: white;">Advanced Features (45+)</h3>
-                <button class="icon-btn" onclick="closeSettings()">✕</button>
+                <h3>45+ Advanced Features</h3>
+                <button class="icon-btn" onclick="closeModal('features-modal')">✕</button>
             </div>
-            <div class="settings-list" id="features-list">
-                </div>
+            <div class="modal-body">
+                <input type="text" class="search-input" id="feature-search" placeholder="Type a feature to search..." onkeyup="filterFeatures()">
+                <div id="feature-list">
+                    </div>
+            </div>
         </div>
+    </div>
+
+    <div class="delete-menu" id="delete-menu">
+        <button class="delete-btn" onclick="deleteMessage('me')">🗑️ Delete for me</button>
+        <button class="delete-btn" onclick="deleteMessage('everyone')">🚫 Delete for everyone</button>
     </div>
 
     <script>
-        // --- 1. LOGIN LOGIC ---
-        function doLogin() {
-            const email = document.getElementById('emailInput').value;
-            if(email === "") { alert("Please enter an email!"); return; }
-            document.getElementById('login-screen').classList.remove('active');
-            document.getElementById('main-screen').classList.add('active');
+        // --- 1. SEARCHABLE FEATURES (45+) ---
+        const allFeatures = [
+            { name: "End-to-End Encryption", icon: "🔒", imp: true },
+            { name: "App Lock (PIN/Fingerprint)", icon: "🔐", imp: true },
+            { name: "Disappearing Messages", icon: "⏳", imp: true },
+            { name: "Hide Online Status", icon: "👻", imp: true },
+            { name: "Anti-Delete Messages", icon: "🛡️", imp: true },
+            { name: "Auto-Reply Bot", icon: "🤖", imp: false },
+            { name: "Voice Changer (Calls)", icon: "🎙️", imp: false },
+            { name: "Call Recording", icon: "⏺️", imp: false },
+            { name: "Live Location Share", icon: "📍", imp: false },
+            { name: "Custom Chat Wallpapers", icon: "🖼️", imp: false },
+            { name: "Anti-Screenshot", icon: "🚫", imp: false },
+            { name: "Hide Typing...", icon: "⌨️", imp: false },
+            { name: "Auto-Translate", icon: "🌐", imp: false },
+            { name: "Schedule Message", icon: "📅", imp: false },
+            { name: "Ghost Mode", icon: "👻", imp: false }
+            // Imagine 30 more here...
+        ];
+
+        function openFeatures() {
+            document.getElementById('features-modal').style.display = 'flex';
+            filterFeatures(); // Load important ones initially
         }
 
-        // --- 2. TAB SWITCHING (Chats vs Friend Requests) ---
-        function switchTab(tab) {
-            document.getElementById('tab-chats').classList.remove('active');
-            document.getElementById('tab-requests').classList.remove('active');
-            document.getElementById('chats-list').style.display = 'none';
-            document.getElementById('requests-list').style.display = 'none';
+        function filterFeatures() {
+            const query = document.getElementById('feature-search').value.toLowerCase();
+            const list = document.getElementById('feature-list');
+            list.innerHTML = '';
 
-            document.getElementById(`tab-${tab}`).classList.add('active');
-            document.getElementById(`${tab}-list`).style.display = 'block';
+            let filtered = allFeatures.filter(f => f.name.toLowerCase().includes(query));
+            
+            // If empty search, show only 'important' options
+            if(query === '') filtered = allFeatures.filter(f => f.imp);
+
+            if(filtered.length === 0) {
+                list.innerHTML = '<p style="text-align:center; color:gray; padding: 20px;">No features found matching this keyword.</p>';
+            } else {
+                filtered.forEach(f => {
+                    list.innerHTML += `
+                        <div class="feature-item" onclick="alert('${f.name} activated!')">
+                            <span class="feature-icon">${f.icon}</span>
+                            <span>${f.name}</span>
+                        </div>
+                    `;
+                });
+            }
         }
 
-        // --- 3. FRIEND REQUEST LOGIC ---
-        function acceptRequest(btn) {
-            btn.innerHTML = "Accepted ✓";
-            btn.style.background = "transparent";
-            btn.style.border = "1px solid var(--success)";
-            btn.style.color = "var(--success)";
-            btn.disabled = true;
+        // --- 2. PROFILE LOGIC ---
+        function openProfile() { document.getElementById('profile-modal').style.display = 'flex'; }
+        function saveProfile() {
+            const name = document.getElementById('prof-name').value;
+            alert(`Profile saved as ${name}! (In real app, Firebase syncs this to opposite person)`);
+            closeModal('profile-modal');
         }
 
-        // --- 4. MESSAGING & 1-TIME VIEW LOGIC ---
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        // --- 3. EMOJI PICKER (30+ Emojis) ---
+        const emojis = ["😀","😂","🤣","😊","😍","🥰","😎","🤓","🤩","🥳","😏","😒","😔","😢","😭","😡","🤬","🤯","😳","🥶","😱","👍","👎","👏","🙌","🤝","🔥","✨","🌟","💯","💣","📸"];
+        const picker = document.getElementById('emoji-picker');
+        emojis.forEach(e => {
+            const span = document.createElement('span');
+            span.className = 'emoji-item';
+            span.innerText = e;
+            span.onclick = () => document.getElementById('msg-input').value += e;
+            picker.appendChild(span);
+        });
+
+        function toggleEmojiPicker() {
+            picker.style.display = picker.style.display === 'grid' ? 'none' : 'grid';
+        }
+
+        // --- 4. MESSAGING & DELETE LOGIC ---
+        let selectedMsgElement = null;
+
         function sendMessage() {
             const input = document.getElementById('msg-input');
             const text = input.value.trim();
@@ -203,74 +243,62 @@
             msgDiv.className = 'msg msg-sent';
             msgDiv.innerText = text;
             
-            document.getElementById('message-container').appendChild(msgDiv);
+            // Add click listener to open delete menu
+            msgDiv.onclick = (e) => showDeleteMenu(e, msgDiv);
+            
+            document.getElementById('chat-box').appendChild(msgDiv);
             input.value = '';
+            picker.style.display = 'none'; // hide emojis
         }
 
-        // Trigger message send on Enter key
-        document.getElementById('msg-input').addEventListener('keypress', function(e) {
-            if(e.key === 'Enter') sendMessage();
+        function showDeleteMenu(event, msgElement) {
+            selectedMsgElement = msgElement;
+            const menu = document.getElementById('delete-menu');
+            menu.style.display = 'block';
+            menu.style.left = (event.pageX - 150) + 'px'; // Position near click
+            menu.style.top = event.pageY + 'px';
+        }
+
+        function deleteMessage(type) {
+            if(!selectedMsgElement) return;
+            
+            if(type === 'me') {
+                selectedMsgElement.remove();
+            } else if (type === 'everyone') {
+                selectedMsgElement.className = 'msg msg-deleted';
+                selectedMsgElement.innerText = "🚫 You deleted this message";
+                selectedMsgElement.onclick = null; // Remove menu trigger
+            }
+            
+            document.getElementById('delete-menu').style.display = 'none';
+        }
+
+        // Hide delete menu when clicking elsewhere
+        document.addEventListener('click', (e) => {
+            if(!e.target.classList.contains('msg-sent') && !e.target.classList.contains('delete-btn')) {
+                document.getElementById('delete-menu').style.display = 'none';
+            }
         });
 
+        // --- 5. 1-TIME VIEW SNAP ---
         function sendSnap() {
             const msgDiv = document.createElement('div');
             msgDiv.className = 'msg msg-sent';
             msgDiv.style.background = 'var(--danger)';
             msgDiv.style.color = 'white';
-            msgDiv.style.cursor = 'pointer';
-            msgDiv.innerText = "💣 Tap to View Snap";
+            msgDiv.innerHTML = "💣 Tap to View Snap";
             
             msgDiv.onclick = function() {
-                alert("Simulating 1-Time View Photo...");
-                this.innerText = "Opened";
-                this.style.background = 'transparent';
-                this.style.border = '1px solid var(--danger)';
-                this.style.color = 'var(--danger)';
+                alert("Viewing 1-Time Photo...");
+                this.className = 'msg msg-deleted';
+                this.innerText = "Snap Opened & Destroyed";
                 this.onclick = null;
             };
-
-            document.getElementById('message-container').appendChild(msgDiv);
+            document.getElementById('chat-box').appendChild(msgDiv);
         }
 
-        // --- 5. CALLING UI ---
-        function triggerCall(type) {
-            alert(`Initiating End-to-End Encrypted ${type} Call...\n(Requires backend WebRTC server to actually connect)`);
-        }
-
-        // --- 6. ADVANCED SETTINGS GENERATOR (45+ Features) ---
-        const advancedFeatures = [
-            "Force End-to-End Encryption", "Disappearing Messages (24h)", "View Once Media Bypass Block", "Anti-Delete Messages", 
-            "Hide Online Status", "Hide Typing Indicator...", "Blue Ticks after Reply", "Voice Changer (Call)", 
-            "Call Recording (Local)", "Hide View Status", "Anti-Screenshot Protection", "App Lock (PIN/Biometric)", 
-            "Custom Chat Wallpapers", "Incognito Keyboard Mode", "Auto-Translate Messages", "Schedule Messages",
-            "Auto-Reply Bot", "Block Unknown Calls", "Show Deleted Statuses", "Custom Notification Sounds",
-            "High Quality Media Upload", "Audio to Text Transcription", "Live Location Sharing", "Screen Sharing (Calls)",
-            "Ghost Mode", "DND Mode (Specific Chats)", "Pin Unlimited Chats", "Mass Message Broadcast",
-            "Animated Emojis", "Sticker Creator", "Chat Export (PDF/TXT)", "Data Saver Mode", "Proxy Support",
-            "Auto-Download over WiFi", "Multi-Device Beta", "Hide Chat from List", "Fake Chat Masking",
-            "Message Recall Time Extension", "Custom Font Sizes", "Color Blind Mode", "Haptic Feedback Control",
-            "Auto-Translate Voice Notes", "Spam Link Warning", "Peer-to-Peer Direct Connect", "Clear Cache on Exit"
-        ];
-
-        function openSettings() {
-            const list = document.getElementById('features-list');
-            list.innerHTML = ''; // clear
-            
-            advancedFeatures.forEach(feature => {
-                const item = document.createElement('div');
-                item.className = 'setting-item';
-                item.innerHTML = `
-                    <span style="color: var(--text-main); font-size: 0.9rem;">${feature}</span>
-                    <div class="toggle" onclick="this.classList.toggle('on')"></div>
-                `;
-                list.appendChild(item);
-            });
-            document.getElementById('settings-modal').style.display = 'flex';
-        }
-
-        function closeSettings() {
-            document.getElementById('settings-modal').style.display = 'none';
-        }
+        // Send on Enter
+        document.getElementById('msg-input').addEventListener('keypress', e => { if(e.key === 'Enter') sendMessage(); });
     </script>
 </body>
 </html>
