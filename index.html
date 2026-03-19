@@ -3,224 +3,274 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrueChats Advanced</title>
+    <title>TrueChats Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- ADVANCED DARK THEME CSS --- */
         :root {
-            --bg-main: #0a0a0a;
-            --bg-panel: #161616;
-            --primary: #00b8d4;
-            --primary-hover: #008c9e;
-            --text-main: #ffffff;
-            --text-sub: #a0a0a0;
-            --danger: #ff3b30;
-            --success: #34c759;
-            --border: #2a2a2a;
+            --bg-dark: #0f1115;
+            --bg-panel: #1a1d24;
+            --bg-hover: #252a33;
+            --accent: #00e5ff;
+            --accent-glow: rgba(0, 229, 255, 0.2);
+            --text-main: #f1f1f1;
+            --text-muted: #8b92a5;
+            --danger: #ff4757;
+            --success: #2ed573;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif !important; }
 
-        body { background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+        body { background-color: var(--bg-dark); color: var(--text-main); height: 100vh; display: flex; overflow: hidden; }
 
-        /* Sidebar */
-        .sidebar { width: 350px; background-color: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-        .sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .search-bar { padding: 10px 20px; }
-        .search-bar input { width: 100%; padding: 10px; border-radius: 20px; border: none; background-color: var(--bg-main); color: var(--text-main); outline: none; }
-        .chat-list { flex: 1; overflow-y: auto; }
-        .chat-item { padding: 15px 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.2s; }
-        .chat-item:hover { background-color: var(--bg-main); }
-        .avatar { width: 45px; height: 45px; border-radius: 50%; background-color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        /* --- SCREEN MANAGEMENT --- */
+        .screen { display: none; width: 100%; height: 100%; }
+        .screen.active { display: flex; }
 
-        /* Main Chat Area */
-        .main-chat { flex: 1; display: flex; flex-direction: column; background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h100v100H0z" fill="%230a0a0a"/><path d="M0 0l100 100M100 0L0 100" stroke="%23161616" stroke-width="1"/></svg>'); }
-        .chat-header { padding: 15px 20px; background-color: var(--bg-panel); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .header-actions button { background: none; border: none; color: var(--primary); font-size: 1.2rem; cursor: pointer; margin-left: 15px; }
+        /* --- LOGIN SCREEN --- */
+        #login-screen { justify-content: center; align-items: center; background: radial-gradient(circle at center, var(--bg-panel) 0%, var(--bg-dark) 100%); flex-direction: column; }
+        .login-box { background-color: var(--bg-panel); padding: 40px; border-radius: 16px; width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #2a2d35; }
+        .login-box h2 { text-align: center; margin-bottom: 25px; color: var(--accent); }
+        .input-group { margin-bottom: 20px; }
+        .input-group input { width: 100%; padding: 12px 15px; border-radius: 8px; border: 1px solid #333; background: var(--bg-dark); color: white; outline: none; }
+        .input-group input:focus { border-color: var(--accent); }
+        .btn-primary { width: 100%; padding: 12px; border-radius: 8px; border: none; background-color: var(--accent); color: #000; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-primary:hover { box-shadow: 0 0 15px var(--accent-glow); transform: translateY(-1px); }
+
+        /* --- MAIN APP SCREEN --- */
+        .sidebar { width: 320px; background-color: var(--bg-panel); border-right: 1px solid #2a2d35; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid #2a2d35; display: flex; justify-content: space-between; align-items: center; }
+        .nav-tabs { display: flex; background: var(--bg-dark); padding: 5px; margin: 15px; border-radius: 8px; }
+        .tab { flex: 1; text-align: center; padding: 8px; cursor: pointer; border-radius: 6px; color: var(--text-muted); font-size: 0.9rem; font-weight: 500;}
+        .tab.active { background: var(--bg-panel); color: var(--accent); }
         
-        /* Encryption Notice */
-        .e2ee-notice { text-align: center; padding: 10px; font-size: 0.8rem; color: #ffd60a; background-color: rgba(255, 214, 10, 0.1); }
+        .list-area { flex: 1; overflow-y: auto; }
+        .list-item { padding: 15px 20px; display: flex; align-items: center; gap: 15px; cursor: pointer; border-bottom: 1px solid #2a2d35; }
+        .list-item:hover { background-color: var(--bg-hover); }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(45deg, var(--accent), #0077ff); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; }
+        
+        .chat-area { flex: 1; display: flex; flex-direction: column; background-color: var(--bg-dark); position: relative;}
+        .chat-header { padding: 15px 20px; background-color: var(--bg-panel); border-bottom: 1px solid #2a2d35; display: flex; justify-content: space-between; align-items: center; }
+        .icon-btn { background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; margin-left: 15px; transition: color 0.2s; }
+        .icon-btn:hover { color: var(--accent); }
 
-        /* Messages */
-        .messages-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .msg-bubble { max-width: 65%; padding: 12px 16px; border-radius: 18px; position: relative; word-wrap: break-word; line-height: 1.4; animation: popIn 0.3s ease-out; }
-        .msg-sent { background-color: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-        .msg-received { background-color: var(--bg-panel); color: var(--text-main); align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid var(--border); }
-        .msg-time { font-size: 0.7rem; opacity: 0.7; margin-top: 5px; text-align: right; display: block; }
+        .messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg { max-width: 60%; padding: 12px 16px; border-radius: 12px; font-size: 0.95rem; }
+        .msg-sent { background-color: var(--accent); color: #000; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .msg-received { background-color: var(--bg-panel); color: white; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #2a2d35;}
 
-        /* One-Time View Snap Feature */
-        .snap-msg { background-color: var(--danger); cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: bold; }
-        .snap-viewed { background-color: transparent; border: 1px solid var(--danger); color: var(--danger); cursor: default; }
+        .input-bar { padding: 15px 20px; background-color: var(--bg-panel); display: flex; gap: 15px; align-items: center; }
+        .input-bar input { flex: 1; padding: 12px 20px; border-radius: 25px; border: 1px solid #333; background: var(--bg-dark); color: white; outline: none; }
+        .snap-btn { background: var(--danger); color: white; padding: 8px 15px; border-radius: 20px; border: none; cursor: pointer; font-weight: 600; font-size: 0.8rem;}
 
-        /* Input Area */
-        .input-area { padding: 15px 20px; background-color: var(--bg-panel); display: flex; gap: 10px; align-items: center; }
-        .btn-action { background: none; border: none; color: var(--text-sub); font-size: 1.5rem; cursor: pointer; transition: color 0.2s; }
-        .btn-action:hover { color: var(--primary); }
-        .msg-input { flex: 1; padding: 15px 20px; border-radius: 25px; border: none; background-color: var(--bg-main); color: var(--text-main); font-size: 1rem; outline: none; }
-        .btn-send { background-color: var(--primary); color: white; border: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; font-weight: bold; transition: background 0.2s; }
-        .btn-send:hover { background-color: var(--primary-hover); }
+        /* --- SETTINGS MODAL (45+ Features) --- */
+        .modal { display: none; position: fixed; top:0; left:0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: center; }
+        .modal-content { background: var(--bg-panel); width: 500px; height: 80vh; border-radius: 12px; display: flex; flex-direction: column; border: 1px solid var(--accent); }
+        .modal-header { padding: 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; }
+        .settings-list { padding: 20px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 15px; }
+        .setting-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid #2a2d35; }
+        .toggle { width: 40px; height: 20px; background: #333; border-radius: 10px; position: relative; cursor: pointer; }
+        .toggle.on { background: var(--accent); }
+        .toggle::after { content: ''; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; }
+        .toggle.on::after { left: 22px; }
 
-        /* Animations */
-        @keyframes popIn { 0% { opacity: 0; transform: scale(0.95) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-
-        /* Video Modal for Snaps */
-        #snapModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; }
-        #cameraFeed { max-width: 90%; max-height: 70vh; border-radius: 10px; border: 2px solid var(--primary); }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <div class="sidebar-header">
+    <div id="login-screen" class="screen active">
+        <div class="login-box">
             <h2>TrueChats</h2>
-            <div style="font-size: 1.5rem;">⚙️</div>
-        </div>
-        <div class="search-bar">
-            <input type="text" placeholder="Search or start new chat...">
-        </div>
-        <div class="chat-list">
-            <div class="chat-item">
-                <div class="avatar">U1</div>
-                <div>
-                    <h4 style="margin-bottom: 5px;">User 1</h4>
-                    <p style="color: var(--text-sub); font-size: 0.9rem;">Tap to view snap</p>
-                </div>
+            <div class="input-group">
+                <input type="email" id="emailInput" placeholder="Email Address">
             </div>
+            <div class="input-group">
+                <input type="password" placeholder="Password">
             </div>
-    </div>
-
-    <div class="main-chat">
-        <div class="chat-header">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <div class="avatar">U1</div>
-                <div>
-                    <h3>User 1</h3>
-                    <p style="color: var(--success); font-size: 0.8rem;">Online</p>
-                </div>
-            </div>
-            <div class="header-actions">
-                <button title="Voice Call">📞</button>
-                <button title="Video Call">📹</button>
-                <button title="More Features">⋮</button>
-            </div>
-        </div>
-
-        <div class="e2ee-notice">
-            🔒 Messages and calls are end-to-end encrypted. No one outside of this chat can read or listen to them.
-        </div>
-
-        <div class="messages-container" id="chatBox">
-            </div>
-
-        <div class="input-area">
-            <button class="btn-action" onclick="openCameraSnap()" title="Send 1-Time View Snap">📸</button>
-            <button class="btn-action" title="Attach File">📎</button>
-            <input type="text" class="msg-input" id="messageInput" placeholder="Type a message..." autocomplete="off">
-            <button class="btn-send" onclick="sendTextMessage()">➤</button>
+            <button class="btn-primary" onclick="doLogin()">Login securely</button>
+            <p style="text-align: center; margin-top: 15px; font-size: 0.8rem; color: var(--text-muted);">End-to-End Encrypted</p>
         </div>
     </div>
 
-    <div id="snapModal">
-        <h2 style="margin-bottom: 20px; color: white;">1-Time View Media</h2>
-        <video id="cameraFeed" autoplay playsinline></video>
-        <div style="margin-top: 20px; display: flex; gap: 20px;">
-            <button class="btn-send" style="width: auto; padding: 10px 20px; border-radius: 20px;" onclick="closeSnapModal()">Cancel</button>
-            <button class="btn-send" style="width: auto; padding: 10px 20px; border-radius: 20px; background-color: var(--danger);" onclick="simulateSendSnap()">Send Snap</button>
+    <div id="main-screen" class="screen">
+        
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3 style="color: var(--text-main);">Messages</h3>
+                <button class="icon-btn" onclick="openSettings()">⚙️</button>
+            </div>
+            
+            <div class="nav-tabs">
+                <div class="tab active" id="tab-chats" onclick="switchTab('chats')">Chats</div>
+                <div class="tab" id="tab-requests" onclick="switchTab('requests')">Friend Requests <span style="background: var(--danger); color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem;">2</span></div>
+            </div>
+
+            <div id="chats-list" class="list-area">
+                <div class="list-item">
+                    <div class="avatar">VK</div>
+                    <div>
+                        <h4 style="color: white; font-size: 1rem;">Virat K.</h4>
+                        <p style="color: var(--text-muted); font-size: 0.8rem;">Sent a snap 📷</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="requests-list" class="list-area" style="display: none;">
+                <div class="list-item">
+                    <div class="avatar">R</div>
+                    <div style="flex:1;">
+                        <h4 style="color: white; font-size: 1rem;">Rahul Sharma</h4>
+                        <p style="color: var(--text-muted); font-size: 0.8rem;">wants to connect</p>
+                    </div>
+                    <button style="background: var(--success); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;" onclick="acceptRequest(this)">Accept</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-area">
+            <div class="chat-header">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div class="avatar">VK</div>
+                    <div>
+                        <h3 style="color: white; font-size: 1.1rem;">Virat K.</h3>
+                        <p style="color: var(--accent); font-size: 0.8rem;">Online (Encrypted 🔒)</p>
+                    </div>
+                </div>
+                <div>
+                    <button class="icon-btn" title="Voice Call" onclick="triggerCall('Voice')">📞</button>
+                    <button class="icon-btn" title="Video Call" onclick="triggerCall('Video')">📹</button>
+                </div>
+            </div>
+
+            <div class="messages" id="message-container">
+                <div class="msg msg-received">Hey man, did you finish the code?</div>
+            </div>
+
+            <div class="input-bar">
+                <button class="snap-btn" onclick="sendSnap()">📷 1-Time Snap</button>
+                <input type="text" id="msg-input" placeholder="Type a secure message...">
+                <button class="icon-btn" style="color: var(--accent);" onclick="sendMessage()">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="color: white;">Advanced Features (45+)</h3>
+                <button class="icon-btn" onclick="closeSettings()">✕</button>
+            </div>
+            <div class="settings-list" id="features-list">
+                </div>
         </div>
     </div>
 
     <script>
-        const chatBox = document.getElementById('chatBox');
-        const messageInput = document.getElementById('messageInput');
-        let snapStream = null;
-
-        // 1. Spontaneous Messaging Logic
-        function sendTextMessage() {
-            const text = messageInput.value.trim();
-            if (text === '') return;
-
-            // Simulate E2EE Encryption Process (Visual only for single file)
-            console.log("Encrypting using AES-256-GCM before processing...");
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-            // Create Sent Message UI
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'msg-bubble msg-sent';
-            msgDiv.innerHTML = `${text} <span class="msg-time">${time} ✓✓</span>`;
-            chatBox.appendChild(msgDiv);
-            
-            // Auto-scroll to bottom
-            chatBox.scrollTop = chatBox.scrollHeight;
-            messageInput.value = '';
-
-            // Simulate auto-reply to show it's working
-            setTimeout(() => { receiveMessage("I got your message securely."); }, 1000);
+        // --- 1. LOGIN LOGIC ---
+        function doLogin() {
+            const email = document.getElementById('emailInput').value;
+            if(email === "") { alert("Please enter an email!"); return; }
+            document.getElementById('login-screen').classList.remove('active');
+            document.getElementById('main-screen').classList.add('active');
         }
 
-        // Allow sending with Enter key
-        messageInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') sendTextMessage();
+        // --- 2. TAB SWITCHING (Chats vs Friend Requests) ---
+        function switchTab(tab) {
+            document.getElementById('tab-chats').classList.remove('active');
+            document.getElementById('tab-requests').classList.remove('active');
+            document.getElementById('chats-list').style.display = 'none';
+            document.getElementById('requests-list').style.display = 'none';
+
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            document.getElementById(`${tab}-list`).style.display = 'block';
+        }
+
+        // --- 3. FRIEND REQUEST LOGIC ---
+        function acceptRequest(btn) {
+            btn.innerHTML = "Accepted ✓";
+            btn.style.background = "transparent";
+            btn.style.border = "1px solid var(--success)";
+            btn.style.color = "var(--success)";
+            btn.disabled = true;
+        }
+
+        // --- 4. MESSAGING & 1-TIME VIEW LOGIC ---
+        function sendMessage() {
+            const input = document.getElementById('msg-input');
+            const text = input.value.trim();
+            if(!text) return;
+
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'msg msg-sent';
+            msgDiv.innerText = text;
+            
+            document.getElementById('message-container').appendChild(msgDiv);
+            input.value = '';
+        }
+
+        // Trigger message send on Enter key
+        document.getElementById('msg-input').addEventListener('keypress', function(e) {
+            if(e.key === 'Enter') sendMessage();
         });
 
-        function receiveMessage(text) {
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        function sendSnap() {
             const msgDiv = document.createElement('div');
-            msgDiv.className = 'msg-bubble msg-received';
-            msgDiv.innerHTML = `${text} <span class="msg-time">${time}</span>`;
-            chatBox.appendChild(msgDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-
-        // 2. One-Time View Photo (Snap) Logic
-        async function openCameraSnap() {
-            const modal = document.getElementById('snapModal');
-            const video = document.getElementById('cameraFeed');
-            modal.style.display = 'flex';
-
-            try {
-                // Request camera access
-                snapStream = await navigator.mediaDevices.getUserMedia({ video: true });
-                video.srcObject = snapStream;
-            } catch (err) {
-                alert("Camera access denied or unavailable. You can still test the UI.");
-                console.error(err);
-            }
-        }
-
-        function closeSnapModal() {
-            document.getElementById('snapModal').style.display = 'none';
-            if (snapStream) {
-                snapStream.getTracks().forEach(track => track.stop()); // Turn off camera light
-            }
-        }
-
-        function simulateSendSnap() {
-            closeSnapModal();
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            msgDiv.className = 'msg msg-sent';
+            msgDiv.style.background = 'var(--danger)';
+            msgDiv.style.color = 'white';
+            msgDiv.style.cursor = 'pointer';
+            msgDiv.innerText = "💣 Tap to View Snap";
             
-            // Create Snap Message UI
-            const snapId = 'snap_' + Math.random().toString(36).substr(2, 9);
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'msg-bubble msg-sent snap-msg';
-            msgDiv.id = snapId;
-            msgDiv.innerHTML = `💣 Tap to View Snap <span class="msg-time">${time}</span>`;
-            
-            // Add click-to-view logic
             msgDiv.onclick = function() {
-                alert("Viewing 1-Time Photo...");
-                // Transform button after viewing
-                this.className = 'msg-bubble msg-sent snap-viewed';
-                this.innerHTML = `Opened <span class="msg-time">${time}</span>`;
-                this.onclick = null; // Remove click event so it can't be opened again
+                alert("Simulating 1-Time View Photo...");
+                this.innerText = "Opened";
+                this.style.background = 'transparent';
+                this.style.border = '1px solid var(--danger)';
+                this.style.color = 'var(--danger)';
+                this.onclick = null;
             };
 
-            chatBox.appendChild(msgDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
+            document.getElementById('message-container').appendChild(msgDiv);
         }
 
-        // Load some initial fake history
-        window.onload = () => {
-            receiveMessage("Hey! This connection is secure.");
-        };
+        // --- 5. CALLING UI ---
+        function triggerCall(type) {
+            alert(`Initiating End-to-End Encrypted ${type} Call...\n(Requires backend WebRTC server to actually connect)`);
+        }
+
+        // --- 6. ADVANCED SETTINGS GENERATOR (45+ Features) ---
+        const advancedFeatures = [
+            "Force End-to-End Encryption", "Disappearing Messages (24h)", "View Once Media Bypass Block", "Anti-Delete Messages", 
+            "Hide Online Status", "Hide Typing Indicator...", "Blue Ticks after Reply", "Voice Changer (Call)", 
+            "Call Recording (Local)", "Hide View Status", "Anti-Screenshot Protection", "App Lock (PIN/Biometric)", 
+            "Custom Chat Wallpapers", "Incognito Keyboard Mode", "Auto-Translate Messages", "Schedule Messages",
+            "Auto-Reply Bot", "Block Unknown Calls", "Show Deleted Statuses", "Custom Notification Sounds",
+            "High Quality Media Upload", "Audio to Text Transcription", "Live Location Sharing", "Screen Sharing (Calls)",
+            "Ghost Mode", "DND Mode (Specific Chats)", "Pin Unlimited Chats", "Mass Message Broadcast",
+            "Animated Emojis", "Sticker Creator", "Chat Export (PDF/TXT)", "Data Saver Mode", "Proxy Support",
+            "Auto-Download over WiFi", "Multi-Device Beta", "Hide Chat from List", "Fake Chat Masking",
+            "Message Recall Time Extension", "Custom Font Sizes", "Color Blind Mode", "Haptic Feedback Control",
+            "Auto-Translate Voice Notes", "Spam Link Warning", "Peer-to-Peer Direct Connect", "Clear Cache on Exit"
+        ];
+
+        function openSettings() {
+            const list = document.getElementById('features-list');
+            list.innerHTML = ''; // clear
+            
+            advancedFeatures.forEach(feature => {
+                const item = document.createElement('div');
+                item.className = 'setting-item';
+                item.innerHTML = `
+                    <span style="color: var(--text-main); font-size: 0.9rem;">${feature}</span>
+                    <div class="toggle" onclick="this.classList.toggle('on')"></div>
+                `;
+                list.appendChild(item);
+            });
+            document.getElementById('settings-modal').style.display = 'flex';
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').style.display = 'none';
+        }
     </script>
 </body>
 </html>
