@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrueChats</title>
+    <title>TrueChats Live</title>
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        /* --- WHATSAPP STYLE THEME --- */
         :root {
             --wa-teal-light: #128C7E;
             --wa-teal-dark: #075E54;
@@ -19,80 +20,50 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-
         body { background-color: #d1d7db; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
 
-        /* --- APP CONTAINER (Mobile View centered on Desktop) --- */
         .app-container { width: 100%; max-width: 450px; height: 100vh; background: var(--white); display: flex; flex-direction: column; position: relative; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-
-        /* --- SCREENS --- */
         .screen { display: none; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; background: var(--white); z-index: 10; animation: slideIn 0.3s ease-out; }
         .screen.active { display: flex; }
         @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        /* --- AUTH SCREEN --- */
+        /* Auth Screen */
         #auth-screen { background: var(--gray-light); justify-content: center; align-items: center; padding: 20px; }
         .auth-card { background: var(--white); padding: 30px; border-radius: 15px; width: 100%; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .auth-card h2 { color: var(--wa-teal-light); text-align: center; margin-bottom: 20px; }
         .input-group { position: relative; margin-bottom: 15px; }
-        .input-group input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; font-size: 1rem; transition: 0.2s; }
-        .input-group input:focus { border-color: var(--wa-teal-light); }
-        .eye-icon { position: absolute; right: 15px; top: 12px; cursor: pointer; color: var(--text-muted); font-size: 1.2rem; }
-        .btn-main { width: 100%; padding: 12px; background: var(--wa-teal-light); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
-        .btn-main:hover { background: var(--wa-teal-dark); }
+        .input-group input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; font-size: 1rem; }
+        .btn-main { width: 100%; padding: 12px; background: var(--wa-teal-light); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; }
         .toggle-auth { text-align: center; margin-top: 15px; color: var(--wa-teal-light); cursor: pointer; font-size: 0.9rem; font-weight: 500; }
-        
         .avatar-select { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; }
         .avatar-option { font-size: 2.5rem; cursor: pointer; opacity: 0.5; transition: 0.2s; border-radius: 50%; padding: 5px; }
         .avatar-option.selected { opacity: 1; background: var(--gray-light); transform: scale(1.1); }
 
-        /* --- MAIN LAYOUT --- */
-        .header { background: var(--wa-teal-dark); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 20; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        /* Main UI */
+        .header { background: var(--wa-teal-dark); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 20; }
         .tabs { display: flex; background: var(--wa-teal-dark); color: rgba(255,255,255,0.7); }
-        .tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; font-weight: 500; border-bottom: 3px solid transparent; transition: 0.2s; }
+        .tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; font-weight: 500; border-bottom: 3px solid transparent; }
         .tab.active { color: white; border-bottom: 3px solid white; }
+        .icon-btn { background: none; border: none; font-size: 1.3rem; color: white; cursor: pointer; padding: 5px; }
 
+        /* Search / Add Friend Bar */
+        .search-bar { padding: 10px 15px; background: var(--gray-light); display: flex; gap: 10px; }
+        .search-bar input { flex: 1; padding: 10px 15px; border-radius: 20px; border: none; outline: none; }
+        .search-bar button { padding: 8px 15px; border-radius: 20px; border: none; background: var(--wa-teal-light); color: white; cursor: pointer; font-weight: bold; }
+
+        /* Lists */
         .list-area { flex: 1; overflow-y: auto; background: var(--white); }
-        .list-item { display: flex; align-items: center; padding: 12px 15px; cursor: pointer; transition: background 0.2s; }
-        .list-item:hover { background: var(--gray-light); }
+        .list-item { display: flex; align-items: center; padding: 12px 15px; cursor: pointer; border-bottom: 1px solid var(--gray-light); }
         .item-avatar { width: 50px; height: 50px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-right: 15px; }
-        .item-info { flex: 1; border-bottom: 1px solid var(--gray-light); padding-bottom: 12px; }
-        .item-title { font-weight: 500; color: var(--text-main); font-size: 1.1rem; display: flex; justify-content: space-between;}
+        .item-info { flex: 1; }
+        .item-title { font-weight: 500; color: var(--text-main); font-size: 1.1rem; }
         .item-sub { color: var(--text-muted); font-size: 0.9rem; margin-top: 3px; }
+        
+        .btn-accept { background: var(--wa-green); color: white; border: none; padding: 6px 15px; border-radius: 20px; cursor: pointer; font-weight: 500; margin-right: 5px; }
+        .btn-decline { background: var(--danger); color: white; border: none; padding: 6px 15px; border-radius: 20px; cursor: pointer; font-weight: 500; }
 
-        /* Requests UI */
-        .req-actions { display: flex; gap: 10px; margin-top: 5px; }
-        .btn-accept { background: var(--wa-teal-light); color: white; border: none; padding: 6px 15px; border-radius: 20px; cursor: pointer; font-weight: 500; }
-        .btn-decline { background: transparent; color: var(--text-muted); border: 1px solid #ddd; padding: 6px 15px; border-radius: 20px; cursor: pointer; font-weight: 500; }
-
-        /* --- CHAT SCREEN --- */
-        .chat-body { flex: 1; background-color: var(--wa-bg); background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-size: contain; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .bubble { max-width: 75%; padding: 8px 12px; border-radius: 8px; font-size: 0.95rem; position: relative; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
-        .bubble-sent { background: #d9fdd3; align-self: flex-end; border-top-right-radius: 0; }
-        .bubble-received { background: var(--white); align-self: flex-start; border-top-left-radius: 0; }
-        .msg-time { font-size: 0.7rem; color: var(--text-muted); float: right; margin: 8px 0 -5px 10px; }
-
-        .chat-input-area { background: var(--gray-light); padding: 10px; display: flex; align-items: center; gap: 10px; }
-        .chat-input-wrapper { flex: 1; background: var(--white); border-radius: 25px; display: flex; align-items: center; padding: 5px 15px; }
-        .chat-input-wrapper input { flex: 1; border: none; outline: none; padding: 10px 0; font-size: 1rem; }
-        .icon-btn { background: none; border: none; font-size: 1.3rem; color: var(--text-muted); cursor: pointer; padding: 5px; }
-        .send-btn { background: var(--wa-teal-light); color: white; width: 40px; height: 40px; border-radius: 50%; border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 1.2rem; }
-
-        /* --- MENUS & MODALS --- */
-        .dropdown { display: none; position: absolute; top: 60px; right: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 200px; z-index: 100; overflow: hidden; }
-        .drop-item { padding: 12px 15px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 1rem; }
-        .drop-item:hover { background: var(--gray-light); }
-        .drop-item.danger { color: var(--danger); }
-
-        .bottom-sheet { display: none; position: absolute; bottom: 0; left: 0; width: 100%; background: white; border-top-left-radius: 20px; border-top-right-radius: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 200; max-height: 80vh; flex-direction: column; animation: slideUp 0.3s ease-out;}
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .sheet-header { padding: 15px; text-align: center; border-bottom: 1px solid var(--gray-light); font-weight: 600; color: var(--text-main); display: flex; justify-content: space-between; align-items: center;}
-        .sheet-body { padding: 10px 0; overflow-y: auto; flex: 1; }
-
-        /* Features List Grouping */
-        .feature-category { padding: 10px 20px; font-size: 0.85rem; color: var(--wa-teal-dark); font-weight: 600; background: var(--gray-light); }
-        .feature-item { padding: 12px 20px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; }
-        .feature-item:hover { background: #fafafa; }
+        /* Chat Screen */
+        .chat-body { flex: 1; background-color: var(--wa-bg); background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-size: contain; padding: 20px; overflow-y: auto; }
     </style>
 </head>
 <body>
@@ -101,167 +72,84 @@
 
         <div id="auth-screen" class="screen active">
             <div class="auth-card">
-                <h2 id="auth-title">Welcome to TrueChats</h2>
+                <h2 id="auth-title">TrueChats Login</h2>
                 
                 <div id="avatar-section" style="display: none;">
-                    <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 10px;">Select Avatar</p>
+                    <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">Select Avatar</p>
                     <div class="avatar-select">
                         <div class="avatar-option selected" onclick="selectAvatar('👦', this)">👦</div>
                         <div class="avatar-option" onclick="selectAvatar('👧', this)">👧</div>
                         <div class="avatar-option" onclick="selectAvatar('😎', this)">😎</div>
                     </div>
+                    <div class="input-group">
+                        <input type="text" id="username" placeholder="Your Name (ex: Nani)">
+                    </div>
                 </div>
 
+                <div class="input-group"><input type="email" id="email" placeholder="Email Address"></div>
                 <div class="input-group">
-                    <input type="email" id="email" placeholder="Email Address" required>
-                </div>
-                <div class="input-group">
-                    <input type="password" id="password" placeholder="Password" required>
-                    <span class="eye-icon" onclick="togglePassword()">👁️</span>
+                    <input type="password" id="password" placeholder="Password">
+                    <span style="position:absolute; right:15px; top:12px; cursor:pointer;" onclick="togglePwd()">👁️</span>
                 </div>
                 
                 <button class="btn-main" id="auth-btn" onclick="handleAuth()">Login securely</button>
                 <p class="toggle-auth" onclick="toggleAuthMode()" id="auth-toggle-text">New user? Create an account</p>
-                <p id="auth-error" style="color: var(--danger); text-align: center; font-size: 0.8rem; margin-top: 10px;"></p>
+                <p id="auth-error" style="color: var(--danger); text-align: center; margin-top: 10px; font-size: 0.9rem;"></p>
             </div>
         </div>
 
         <div id="main-screen" class="screen">
             <div class="header">
-                <h2>TrueChats</h2>
+                <h2 id="my-profile-name">TrueChats</h2>
                 <div>
-                    <button class="icon-btn" style="color:white;" onclick="openBottomSheet('settings-sheet')">⚙️</button>
-                    <button class="icon-btn" style="color:white;">⋮</button>
+                    <button class="icon-btn" onclick="logout()">🚪</button>
                 </div>
             </div>
             <div class="tabs">
                 <div class="tab active" id="tab-chats" onclick="switchTab('chats')">Chats</div>
-                <div class="tab" id="tab-requests" onclick="switchTab('requests')">Requests (1)</div>
+                <div class="tab" id="tab-requests" onclick="switchTab('requests')">Requests <span id="req-count" style="background:var(--danger);color:white;border-radius:50%;padding:2px 6px;font-size:0.7rem;display:none;">0</span></div>
             </div>
 
             <div class="list-area" id="chats-list">
-                <div class="list-item" onclick="openChat('Rahul', '👦')">
-                    <div class="item-avatar">👦</div>
-                    <div class="item-info">
-                        <div class="item-title">Rahul <span style="font-size: 0.8rem; font-weight: 400; color: var(--wa-green);">11:45 AM</span></div>
-                        <div class="item-sub">Hey, are we still meeting up?</div>
-                    </div>
+                <div class="search-bar">
+                    <input type="email" id="search-email" placeholder="Enter friend's email to add...">
+                    <button onclick="sendRequest()">Add Friend</button>
                 </div>
-                <div class="list-item" onclick="openChat('Priya', '👧')">
-                    <div class="item-avatar">👧</div>
-                    <div class="item-info">
-                        <div class="item-title">Priya <span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">Yesterday</span></div>
-                        <div class="item-sub">💣 Photo</div>
-                    </div>
+                <p id="search-status" style="text-align:center; font-size:0.8rem; color:var(--text-muted); margin-top:5px;"></p>
+                
+                <div id="my-chats-container">
+                    <p style="text-align:center; color:gray; margin-top:20px;">No friends yet. Search an email above to add!</p>
                 </div>
             </div>
 
             <div class="list-area" id="requests-list" style="display: none;">
-                <div class="list-item">
-                    <div class="item-avatar">😎</div>
-                    <div class="item-info" style="border: none;">
-                        <div class="item-title">Vikram</div>
-                        <div class="item-sub">Wants to connect with you.</div>
-                        <div class="req-actions">
-                            <button class="btn-accept" onclick="acceptRequest(this)">Accept</button>
-                            <button class="btn-decline" onclick="this.parentElement.parentElement.parentElement.remove()">Decline</button>
-                        </div>
-                    </div>
+                <div id="my-requests-container">
+                    <p style="text-align:center; color:gray; margin-top:20px;">No pending requests.</p>
                 </div>
             </div>
         </div>
 
         <div id="chat-screen" class="screen">
             <div class="header" style="justify-content: flex-start; gap: 15px;">
-                <button class="icon-btn" style="color: white; padding: 0;" onclick="closeChat()">←</button>
+                <button class="icon-btn" onclick="closeChat()">←</button>
                 <div class="item-avatar" id="active-avatar" style="width: 40px; height: 40px; margin: 0; background: white;">👦</div>
                 <div style="flex: 1;">
-                    <h3 id="active-name" style="font-size: 1.1rem; font-weight: 500;">Rahul</h3>
-                    <p style="font-size: 0.8rem; opacity: 0.8;">Online</p>
+                    <h3 id="active-name" style="font-size: 1.1rem;">Name</h3>
                 </div>
-                <button class="icon-btn" style="color: white;">📞</button>
-                <button class="icon-btn" style="color: white;">📹</button>
-                <button class="icon-btn" style="color: white;" onclick="toggleDropdown()">⋮</button>
             </div>
-
-            <div class="dropdown" id="chat-dropdown">
-                <div class="drop-item" onclick="alert('Viewing Profile...')">👤 View Contact</div>
-                <div class="drop-item" onclick="alert('Media, links, and docs...')">🖼️ Media, links, and docs</div>
-                <div class="drop-item danger" onclick="alert('User Blocked!')">🚫 Block</div>
-                <div class="drop-item danger" onclick="alert('Friend Removed!')">🗑️ Remove as friend</div>
-            </div>
-
             <div class="chat-body" id="message-container">
-                <div style="text-align: center; margin: 10px 0;">
-                    <span style="background: #FFEECD; padding: 5px 12px; border-radius: 10px; font-size: 0.8rem; color: #555; display: inline-block;">
-                        🔒 Messages and calls are end-to-end encrypted. No one outside of this chat, not even TrueChats, can read or listen to them.
-                    </span>
-                </div>
-                <div class="bubble bubble-received">Hey, are we still meeting up? <span class="msg-time">11:45 AM</span></div>
-            </div>
-
-            <div class="chat-input-area">
-                <div class="chat-input-wrapper">
-                    <button class="icon-btn">😀</button>
-                    <input type="text" id="msg-input" placeholder="Message">
-                    <button class="icon-btn" title="Send 1-Time View" style="color: var(--danger);" onclick="document.getElementById('msg-input').value = '💣 [1-Time Snap]'">📸</button>
-                    <button class="icon-btn" onclick="openBottomSheet('attachment-sheet')">📎</button>
-                </div>
-                <button class="send-btn" onclick="sendMessage()">➤</button>
-            </div>
-        </div>
-
-        <div class="bottom-sheet" id="settings-sheet">
-            <div class="sheet-header">
-                Advanced Features (45+)
-                <button class="icon-btn" onclick="closeBottomSheet('settings-sheet')">✕</button>
-            </div>
-            <div class="sheet-body">
-                <div class="feature-category">Privacy & Security</div>
-                <div class="feature-item"><span>👻</span> Hide Online Status</div>
-                <div class="feature-item"><span>⌨️</span> Hide Typing Indicator...</div>
-                <div class="feature-item"><span>👁️‍🗨️</span> Hide Blue Ticks (Read Receipts)</div>
-                <div class="feature-item"><span>🛡️</span> Anti-Delete Messages (See deleted msgs)</div>
-                <div class="feature-item"><span>🚫</span> Anti-Screenshot Protection</div>
-                <div class="feature-item"><span>🔐</span> App Lock (Fingerprint/PIN)</div>
-                <div class="feature-item"><span>🕵️</span> Incognito Keyboard Mode</div>
-                <div class="feature-item"><span>📵</span> Block Unknown Calls</div>
-                <div class="feature-item"><span>👁️</span> Show Deleted Statuses</div>
-
-                <div class="feature-category">Messaging & Chats</div>
-                <div class="feature-item"><span>⏳</span> Disappearing Messages Timer (24h/7d)</div>
-                <div class="feature-item"><span>📅</span> Schedule Message</div>
-                <div class="feature-item"><span>🤖</span> Auto-Reply Bot</div>
-                <div class="feature-item"><span>🌐</span> Auto-Translate Messages</div>
-                <div class="feature-item"><span>🎙️</span> Audio to Text Transcription</div>
-                <div class="feature-item"><span>📌</span> Pin Unlimited Chats</div>
-                <div class="feature-item"><span>📢</span> Mass Message Broadcast</div>
-                <div class="feature-item"><span>🎭</span> Fake Chat Masking</div>
-
-                <div class="feature-category">Media & Calling</div>
-                <div class="feature-item"><span>💣</span> 1-Time View Media Bypass (Keep photos)</div>
-                <div class="feature-item"><span>HD</span> Send High Quality Media Always</div>
-                <div class="feature-item"><span>🎙️</span> Voice Changer during Calls</div>
-                <div class="feature-item"><span>⏺️</span> Call Recording (Local)</div>
-                <div class="feature-item"><span>📱</span> Screen Sharing (Video Calls)</div>
-                <div class="feature-item"><span>📍</span> Live Location Sharing</div>
-
-                <div class="feature-category">Customization</div>
-                <div class="feature-item"><span>🖼️</span> Custom Chat Wallpapers</div>
-                <div class="feature-item"><span>🎨</span> Theme Engine (Light/Dark/Custom)</div>
-                <div class="feature-item"><span>🎵</span> Custom Notification Sounds per User</div>
-                <div class="feature-item"><span>🅰️</span> Custom Font Sizes & Styles</div>
-                <div class="feature-item"><span>📳</span> Haptic Feedback Control</div>
-                <div class="feature-item"><span>🧹</span> Clear Cache on Exit</div>
+                <p style="text-align:center; color:gray; background:white; padding:10px; border-radius:10px; font-size:0.8rem; margin:10px auto; width:80%;">
+                    Messaging UI ready. (Firestore chat logic will be added next!)
+                </p>
             </div>
         </div>
 
     </div>
 
     <script type="module">
-        // 1. Firebase Configuration (Your actual keys)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, addDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBUBXYI1Rku7hhUN2VNUNw3cEsg7xG9xwY",
@@ -274,132 +162,216 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        // --- AUTH UI LOGIC ---
+        let currentUser = null;
+        let currentUserData = null;
+
+        // --- AUTHENTICATION ---
         let isLogin = true;
         let selectedAvatar = '👦';
 
-        window.toggleAuthMode = function() {
+        window.toggleAuthMode = () => {
             isLogin = !isLogin;
-            document.getElementById('auth-title').innerText = isLogin ? "Welcome to TrueChats" : "Create Account";
-            document.getElementById('auth-btn').innerText = isLogin ? "Login securely" : "Register Now";
+            document.getElementById('auth-title').innerText = isLogin ? "TrueChats Login" : "Create Account";
+            document.getElementById('auth-btn').innerText = isLogin ? "Login" : "Register";
             document.getElementById('auth-toggle-text').innerText = isLogin ? "New user? Create an account" : "Already have an account? Login";
             document.getElementById('avatar-section').style.display = isLogin ? "none" : "block";
-            document.getElementById('auth-error').innerText = "";
         }
 
-        window.togglePassword = function() {
-            const pwdInput = document.getElementById('password');
-            pwdInput.type = pwdInput.type === 'password' ? 'text' : 'password';
-        }
+        window.selectAvatar = (emoji, el) => { selectedAvatar = emoji; document.querySelectorAll('.avatar-option').forEach(e => e.classList.remove('selected')); el.classList.add('selected'); }
+        window.togglePwd = () => { const p = document.getElementById('password'); p.type = p.type === 'password' ? 'text' : 'password'; }
 
-        window.selectAvatar = function(emoji, element) {
-            selectedAvatar = emoji;
-            document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
-            element.classList.add('selected');
-        }
-
-        window.handleAuth = function() {
-            const email = document.getElementById('email').value;
+        window.handleAuth = async () => {
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
-            const errorText = document.getElementById('auth-error');
+            const name = document.getElementById('username').value.trim();
+            const err = document.getElementById('auth-error');
+            err.innerText = "Loading...";
 
-            if(!email || !password) { errorText.innerText = "Please fill all fields."; return; }
-
-            // Using your Firebase Auth!
-            if(isLogin) {
-                signInWithEmailAndPassword(auth, email, password)
-                    .then((userCredential) => {
-                        // Success! Transition to Main App
-                        document.getElementById('auth-screen').classList.remove('active');
-                        document.getElementById('main-screen').classList.add('active');
-                    })
-                    .catch((error) => { errorText.innerText = "Error: " + error.message; });
-            } else {
-                createUserWithEmailAndPassword(auth, email, password)
-                    .then((userCredential) => {
-                        // Success! (In a real app, save 'selectedAvatar' to Firestore here)
-                        document.getElementById('auth-screen').classList.remove('active');
-                        document.getElementById('main-screen').classList.add('active');
-                    })
-                    .catch((error) => { errorText.innerText = "Error: " + error.message; });
+            try {
+                if (isLogin) {
+                    await signInWithEmailAndPassword(auth, email, password);
+                } else {
+                    if(!name) { err.innerText = "Please enter your name!"; return; }
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    // Save to Firestore "users" collection
+                    await setDoc(doc(db, "users", userCredential.user.uid), {
+                        uid: userCredential.user.uid,
+                        email: email.toLowerCase(),
+                        name: name,
+                        avatar: selectedAvatar
+                    });
+                }
+                err.innerText = "";
+            } catch (error) {
+                err.innerText = error.message;
             }
         }
 
-        // --- MAIN UI LOGIC ---
-        window.switchTab = function(tab) {
+        window.logout = () => { signOut(auth); }
+
+        // --- REALTIME LISTENERS ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                // Fetch user profile
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if(userDoc.exists()) {
+                    currentUserData = userDoc.data();
+                    document.getElementById('my-profile-name').innerText = `Hello, ${currentUserData.name} ${currentUserData.avatar}`;
+                }
+
+                document.getElementById('auth-screen').classList.remove('active');
+                document.getElementById('main-screen').classList.add('active');
+                
+                // Start listening to live database
+                listenToRequests();
+                listenToFriends();
+            } else {
+                currentUser = null;
+                document.getElementById('auth-screen').classList.add('active');
+                document.getElementById('main-screen').classList.remove('active');
+            }
+        });
+
+        // --- FRIEND REQUEST SYSTEM (REAL) ---
+        window.sendRequest = async () => {
+            const targetEmail = document.getElementById('search-email').value.trim().toLowerCase();
+            const statusText = document.getElementById('search-status');
+            if(!targetEmail) return;
+            if(targetEmail === currentUser.email) { statusText.innerText = "You cannot add yourself!"; return; }
+
+            statusText.innerText = "Searching database...";
+            
+            // Search Firestore for the email
+            const q = query(collection(db, "users"), where("email", "==", targetEmail));
+            const querySnapshot = await getDocs(q);
+            
+            if (querySnapshot.empty) {
+                statusText.innerText = "❌ User not found in TrueChats.";
+                statusText.style.color = "var(--danger)";
+            } else {
+                let targetUser = null;
+                querySnapshot.forEach((doc) => { targetUser = doc.data(); });
+                
+                // Send Request to Firestore
+                await addDoc(collection(db, "friend_requests"), {
+                    fromUid: currentUser.uid,
+                    fromName: currentUserData.name,
+                    fromAvatar: currentUserData.avatar,
+                    toUid: targetUser.uid,
+                    status: "pending",
+                    timestamp: Date.now()
+                });
+                
+                statusText.innerText = `✅ Request sent to ${targetUser.name}!`;
+                statusText.style.color = "var(--wa-green)";
+                document.getElementById('search-email').value = "";
+            }
+        }
+
+        // Live Listener for Incoming Requests
+        function listenToRequests() {
+            const q = query(collection(db, "friend_requests"), where("toUid", "==", currentUser.uid), where("status", "==", "pending"));
+            onSnapshot(q, (snapshot) => {
+                const container = document.getElementById('my-requests-container');
+                const reqCount = document.getElementById('req-count');
+                
+                if (snapshot.empty) {
+                    container.innerHTML = '<p style="text-align:center; color:gray; margin-top:20px;">No pending requests.</p>';
+                    reqCount.style.display = 'none';
+                    return;
+                }
+
+                container.innerHTML = "";
+                reqCount.innerText = snapshot.size;
+                reqCount.style.display = 'inline-block';
+
+                snapshot.forEach((docSnap) => {
+                    const req = docSnap.data();
+                    const reqId = docSnap.id;
+                    
+                    container.innerHTML += `
+                        <div class="list-item">
+                            <div class="item-avatar">${req.fromAvatar}</div>
+                            <div class="item-info">
+                                <div class="item-title">${req.fromName}</div>
+                                <div class="item-sub">Wants to connect</div>
+                                <div style="margin-top:5px;">
+                                    <button class="btn-accept" onclick="acceptFriend('${reqId}', '${req.fromUid}', '${req.fromName}', '${req.fromAvatar}')">Accept</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        // Accept a friend request
+        window.acceptFriend = async (requestId, friendUid, friendName, friendAvatar) => {
+            // 1. Update request status
+            await updateDoc(doc(db, "friend_requests", requestId), { status: "accepted" });
+            
+            // 2. Add to both users' friends list
+            await setDoc(doc(db, "friends", currentUser.uid + "_" + friendUid), {
+                user1: currentUser.uid,
+                user2: friendUid,
+                user1Name: currentUserData.name,
+                user1Avatar: currentUserData.avatar,
+                user2Name: friendName,
+                user2Avatar: friendAvatar
+            });
+            alert(`${friendName} is now your friend!`);
+            switchTab('chats');
+        }
+
+        // Live Listener for Accepted Friends
+        function listenToFriends() {
+            // (Simplified query for demo purposes: fetching where user1 == me OR user2 == me)
+            const q1 = query(collection(db, "friends"), where("user1", "==", currentUser.uid));
+            const q2 = query(collection(db, "friends"), where("user2", "==", currentUser.uid));
+            
+            // In a real prod app, we'd combine these cleanly, doing a simple render here:
+            onSnapshot(q1, (snap1) => renderFriends(snap1, 'user2Name', 'user2Avatar'));
+            onSnapshot(q2, (snap2) => renderFriends(snap2, 'user1Name', 'user1Avatar'));
+        }
+
+        function renderFriends(snapshot, nameKey, avatarKey) {
+            const container = document.getElementById('my-chats-container');
+            if(!snapshot.empty) container.innerHTML = ""; // Clear "no friends" message
+            
+            snapshot.forEach((docSnap) => {
+                const friend = docSnap.data();
+                container.innerHTML += `
+                    <div class="list-item" onclick="openChat('${friend[nameKey]}', '${friend[avatarKey]}')">
+                        <div class="item-avatar">${friend[avatarKey]}</div>
+                        <div class="item-info">
+                            <div class="item-title">${friend[nameKey]}</div>
+                            <div class="item-sub">Tap to chat securely</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- UI NAVIGATION ---
+        window.switchTab = (tab) => {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.list-area').forEach(l => l.style.display = 'none');
-            
             document.getElementById('tab-' + tab).classList.add('active');
             document.getElementById(tab + '-list').style.display = 'block';
         }
-
-        window.acceptRequest = function(btn) {
-            const row = btn.parentElement.parentElement.parentElement;
-            row.style.background = "#d9fdd3";
-            btn.parentElement.innerHTML = "<span style='color: var(--wa-green); font-weight: 500;'>Friend Added ✓</span>";
-            setTimeout(() => { switchTab('chats'); }, 1500); // Move to chats visually
-        }
-
-        // --- CHAT & FEATURES LOGIC ---
-        window.openChat = function(name, avatar) {
+        window.openChat = (name, avatar) => {
             document.getElementById('active-name').innerText = name;
             document.getElementById('active-avatar').innerText = avatar;
             document.getElementById('main-screen').classList.remove('active');
             document.getElementById('chat-screen').classList.add('active');
         }
-
-        window.closeChat = function() {
+        window.closeChat = () => {
             document.getElementById('chat-screen').classList.remove('active');
             document.getElementById('main-screen').classList.add('active');
-            document.getElementById('chat-dropdown').style.display = 'none';
         }
-
-        window.toggleDropdown = function() {
-            const drop = document.getElementById('chat-dropdown');
-            drop.style.display = drop.style.display === 'block' ? 'none' : 'block';
-        }
-
-        window.sendMessage = function() {
-            const input = document.getElementById('msg-input');
-            const text = input.value.trim();
-            if(!text) return;
-
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const msgDiv = document.createElement('div');
-            
-            // Check if it's a 1-Time View
-            if(text.includes('💣')) {
-                msgDiv.className = 'bubble bubble-sent';
-                msgDiv.innerHTML = `📸 Photo (1-Time View) <span class="msg-time">${time} ✓✓</span>`;
-                msgDiv.style.color = 'var(--danger)';
-                msgDiv.style.fontWeight = '500';
-            } else {
-                msgDiv.className = 'bubble bubble-sent';
-                msgDiv.innerHTML = `${text} <span class="msg-time">${time} ✓✓</span>`;
-            }
-            
-            document.getElementById('message-container').appendChild(msgDiv);
-            input.value = '';
-            document.getElementById('message-container').scrollTop = document.getElementById('message-container').scrollHeight;
-        }
-
-        // Close dropdown if clicked outside
-        document.addEventListener('click', function(e) {
-            if(!e.target.closest('.header') && !e.target.closest('.dropdown')) {
-                document.getElementById('chat-dropdown').style.display = 'none';
-            }
-        });
-
-        // --- BOTTOM SHEETS ---
-        window.openBottomSheet = function(id) {
-            document.getElementById(id).style.display = 'flex';
-        }
-        window.closeBottomSheet = function(id) {
-            document.getElementById(id).style.display = 'none';
-        }
-        
     </script>
 </body>
 </html>
