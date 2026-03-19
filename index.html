@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HelloChat.. Advanced</title>
+    <title>TrueChats - Smart Search & Security</title>
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root { --wa-teal: #128C7E; --wa-teal-dark: #075E54; --wa-bg: #E5DDD5; --white: #ffffff; --danger: #ea0038; }
@@ -11,25 +11,32 @@
         body { background: #d1d7db; display: flex; justify-content: center; height: 100vh; overflow: hidden; }
         .app-container { width: 100%; max-width: 450px; height: 100vh; background: var(--white); display: flex; flex-direction: column; position: relative; }
         
-        .screen { display: none; flex-direction: column; height: 100%; width: 100%; position: absolute; background: var(--white); z-index: 10;}
-        .screen.active { display: flex; }
+        .screen, .modal { display: none; flex-direction: column; height: 100%; width: 100%; position: absolute; background: var(--white); z-index: 10;}
+        .screen.active, .modal.active { display: flex; }
+        
+        /* Modals & Overlays */
+        .modal { background: rgba(0,0,0,0.6); z-index: 200; justify-content: center; align-items: center; padding: 20px; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 100%; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 
-        .header { background: var(--wa-teal-dark); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .tabs { display: flex; background: var(--wa-teal-dark); }
+        .header { background: var(--wa-teal-dark); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; z-index: 20;}
+        .tabs { display: flex; background: var(--wa-teal-dark); z-index: 20;}
         .tab { flex: 1; text-align: center; padding: 12px; color: rgba(255,255,255,0.7); cursor: pointer; border-bottom: 3px solid transparent; }
         .tab.active { color: white; border-bottom-color: white; }
 
-        .list-area { flex: 1; overflow-y: auto; }
+        .list-area { flex: 1; overflow-y: auto; position: relative;}
         .list-item { display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid #eee; cursor: pointer; }
         .item-avatar { width: 50px; height: 50px; border-radius: 50%; background: #ccc; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-right: 15px; }
         
-        /* Chat UI */
+        /* Auto-Suggest Dropdown */
+        .suggestions-box { display: none; position: absolute; top: 55px; left: 10px; right: 10px; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); border-radius: 8px; z-index: 50; max-height: 200px; overflow-y: auto; border: 1px solid #ddd; }
+        .suggest-item { padding: 12px 15px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .suggest-item:hover { background: #f0f2f5; }
+
         .chat-body { flex: 1; background: var(--wa-bg); padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
         .bubble { max-width: 80%; padding: 8px 12px; border-radius: 8px; font-size: 0.95rem; }
         .sent { background: #d9fdd3; align-self: flex-end; }
         .received { background: white; align-self: flex-start; }
 
-        /* Bottom Sheet (45 Features) */
         .bottom-sheet { display: none; position: absolute; bottom: 0; left: 0; width: 100%; height: 85vh; background: white; border-top-left-radius: 20px; border-top-right-radius: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); z-index: 100; flex-direction: column; animation: slideUp 0.3s; }
         @keyframes slideUp { from{transform:translateY(100%);} to{transform:translateY(0);} }
         .sheet-header { padding: 15px; text-align: center; font-weight: bold; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;}
@@ -37,7 +44,6 @@
         .feature-category { background: #f0f2f5; color: var(--wa-teal-dark); padding: 8px 15px; font-size: 0.85rem; font-weight: bold; }
         .feature-item { padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f9f9f9; }
         
-        /* Toggle Switch */
         .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 20px; }
@@ -45,42 +51,50 @@
         input:checked + .slider { background-color: var(--wa-teal); }
         input:checked + .slider:before { transform: translateX(20px); }
 
-        /* Auth */
-        #auth-screen { justify-content: center; align-items: center; padding: 20px; background: #f0f2f5;}
-        .auth-card { background: white; padding: 25px; border-radius: 12px; width: 100%; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .input-group { margin-bottom: 15px; }
         .input-group input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
         .btn-main { width: 100%; padding: 12px; background: var(--wa-teal); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;}
+        .btn-small { background: #eee; border: 1px solid #ccc; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8rem;}
     </style>
 </head>
 <body>
 
-    <div id="pin-screen" class="screen" style="z-index: 999; justify-content: center; align-items: center; background: var(--wa-teal-dark); color: white;">
+    <div id="custom-pin-modal" class="modal">
+        <div class="modal-box">
+            <h3 id="pin-modal-title" style="color: var(--wa-teal-dark); margin-bottom: 15px;">Set PIN</h3>
+            <p id="pin-modal-desc" style="font-size: 0.9rem; color: gray; margin-bottom: 15px;">Enter a 4-digit PIN.</p>
+            <input type="password" id="pin-input-field" maxlength="4" style="text-align: center; letter-spacing: 15px; font-size: 1.5rem; padding: 10px; width: 150px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ddd;">
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-main" style="background: #ccc; color: black;" onclick="closePinModal()">Cancel</button>
+                <button class="btn-main" onclick="submitPinAction()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="lock-screen" class="screen" style="z-index: 999; justify-content: center; align-items: center; background: var(--wa-teal-dark); color: white;">
         <h2>App Locked</h2>
-        <p style="margin-bottom: 20px; font-size: 0.9rem;">Enter 1234 to unlock (Demo PIN)</p>
-        <div class="input-group"><input type="password" id="pin-input" placeholder="Enter PIN" style="text-align: center; letter-spacing: 10px; font-size: 1.5rem; width: 200px;"></div>
-        <button class="btn-main" onclick="checkPin()" style="width: 200px; background: white; color: var(--wa-teal-dark);">Unlock</button>
+        <p style="margin-bottom: 20px; font-size: 0.9rem;">Enter your custom PIN to unlock</p>
+        <div class="input-group"><input type="password" id="unlock-pin" maxlength="4" style="text-align: center; letter-spacing: 15px; font-size: 1.5rem; width: 180px;"></div>
+        <button class="btn-main" onclick="unlockApp()" style="width: 180px; background: white; color: var(--wa-teal-dark);">Unlock</button>
     </div>
 
     <div class="app-container">
-        <div id="auth-screen" class="screen active">
-            <div class="auth-card">
-                <h2 style="text-align:center; color:var(--wa-teal); margin-bottom:20px;">TrueChats</h2>
-                <div class="input-group"><input type="text" id="reg-name" placeholder="Name (If registering)"></div>
+        <div id="auth-screen" class="screen active" style="justify-content: center; padding: 20px; background: #f0f2f5;">
+            <div class="modal-box">
+                <h2 style="color:var(--wa-teal); margin-bottom:20px;">TrueChats</h2>
+                <div class="input-group"><input type="text" id="reg-name" placeholder="Name (For new user)"></div>
                 <div class="input-group"><input type="email" id="auth-email" placeholder="Email"></div>
                 <div class="input-group"><input type="password" id="auth-pass" placeholder="Password"></div>
                 <button class="btn-main" onclick="handleAuth(true)" style="margin-bottom: 10px;">Login</button>
                 <button class="btn-main" onclick="handleAuth(false)" style="background: #333;">Register</button>
-                <p id="auth-err" style="color:red; font-size:0.8rem; margin-top:10px; text-align:center;"></p>
+                <p id="auth-err" style="color:red; font-size:0.8rem; margin-top:10px;"></p>
             </div>
         </div>
 
         <div id="main-screen" class="screen">
             <div class="header">
                 <h3>TrueChats</h3>
-                <div>
-                    <button onclick="document.getElementById('settings-sheet').style.display='flex'" style="background:none; border:none; color:white; font-size:1.2rem; margin-right: 10px;">⚙️</button>
-                </div>
+                <button onclick="document.getElementById('settings-sheet').style.display='flex'" style="background:none; border:none; color:white; font-size:1.2rem;">⚙️</button>
             </div>
             <div class="tabs">
                 <div class="tab active" onclick="showTab('chats', this)">CHATS</div>
@@ -88,10 +102,14 @@
             </div>
 
             <div id="tab-chats" class="list-area">
-                <div style="padding:10px; background:#f0f2f5; display:flex; gap:5px;">
-                    <input type="email" id="s-email" placeholder="Add friend by email..." style="flex:1; padding:8px; border-radius:5px; border:1px solid #ddd;">
-                    <button onclick="sendFriendReq()" style="background:var(--wa-teal); color:white; border:none; padding:5px 12px; border-radius:5px;">Add</button>
+                <div style="padding:10px; background:#f0f2f5; position: relative;">
+                    <div style="display:flex; gap:5px;">
+                        <input type="text" id="s-input" placeholder="Search name or email..." onkeyup="suggestUsers()" style="flex:1; padding:10px; border-radius:5px; border:1px solid #ddd; outline:none;">
+                        <button onclick="sendFriendReq()" style="background:var(--wa-teal); color:white; border:none; padding:10px 15px; border-radius:5px; font-weight:bold;">Add</button>
+                    </div>
+                    <div id="suggestions-box" class="suggestions-box"></div>
                 </div>
+
                 <div id="chats-list-container"></div>
             </div>
             <div id="tab-reqs" class="list-area" style="display:none;"><div id="reqs-list-container"></div></div>
@@ -99,14 +117,11 @@
 
         <div id="chat-window" class="screen">
             <div class="header">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <button onclick="closeChat()" style="background:none; border:none; color:white; font-size:1.2rem;">←</button>
-                    <div id="chat-title" style="font-weight:500;">Name</div>
-                </div>
+                <button onclick="closeChat()" style="background:none; border:none; color:white; font-size:1.2rem; margin-right:10px;">←</button>
+                <div id="chat-title" style="flex:1; font-weight:500;">Name</div>
             </div>
             <div class="chat-body" id="msg-container"></div>
             <div style="padding:10px; background:#f0f2f5; display:flex; gap:10px;">
-                <button onclick="sendSnap()" style="background:var(--danger); color:white; border:none; padding:10px; border-radius:20px; font-size: 0.8rem;">💣 Snap</button>
                 <input type="text" id="m-input" placeholder="Type a message" style="flex:1; padding:10px; border-radius:20px; border:none; outline:none;">
                 <button onclick="sendMsg()" style="background:var(--wa-teal); color:white; border:none; width:40px; height:40px; border-radius:50%;">➤</button>
             </div>
@@ -114,31 +129,24 @@
 
         <div class="bottom-sheet" id="settings-sheet">
             <div class="sheet-header">
-                Advanced Features (45+)
+                Advanced Features
                 <button onclick="document.getElementById('settings-sheet').style.display='none'" style="background:none; border:none; font-size:1.2rem;">✕</button>
             </div>
             <div class="sheet-body">
-                <div class="feature-category">Working Local Features</div>
+                <div class="feature-category">Security Settings</div>
                 <div class="feature-item">
                     <span>🔐 App Lock (PIN)</span>
-                    <label class="switch"><input type="checkbox" id="toggle-lock" onchange="toggleLock()"><span class="slider"></span></label>
+                    <label class="switch"><input type="checkbox" id="toggle-lock" onchange="handleLockToggle()"><span class="slider"></span></label>
                 </div>
+                <div class="feature-item" id="change-pin-row" style="display: none;">
+                    <span>🔄 Change Password / PIN</span>
+                    <button class="btn-small" onclick="initiatePinChange()">Change PIN</button>
+                </div>
+                <div class="feature-category">System</div>
                 <div class="feature-item">
-                    <span>🧹 Clear Local Cache</span>
-                    <button onclick="alert('Cache Cleared!');" style="padding: 5px 10px; border: none; background: #ddd; border-radius: 5px;">Clear</button>
+                    <span>🧹 Clear Local Data</span>
+                    <button class="btn-small" onclick="if(confirm('Logout and clear data?')){ localStorage.clear(); location.reload(); }">Clear & Logout</button>
                 </div>
-
-                <div class="feature-category">Privacy & Security (UI Demo)</div>
-                <div class="feature-item"><span>👻 Hide Online Status</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
-                <div class="feature-item"><span>⌨️ Hide Typing Indicator...</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
-                <div class="feature-item"><span>👁️‍🗨️ Hide Blue Ticks</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
-                <div class="feature-item"><span>🛡️ Anti-Delete Messages</span><label class="switch"><input type="checkbox" checked><span class="slider"></span></label></div>
-                
-                <div class="feature-category">Media & Calling (Requires Backend Server)</div>
-                <div class="feature-item"><span>🎙️ Voice Changer (Calls)</span><span style="font-size: 0.7rem; color: gray;">Needs WebRTC</span></div>
-                <div class="feature-item"><span>📍 Live Location Share</span><span style="font-size: 0.7rem; color: gray;">Needs Maps API</span></div>
-                <div class="feature-item"><span>🌐 Auto-Translate</span><span style="font-size: 0.7rem; color: gray;">Needs Google API</span></div>
-                <div style="padding: 20px; text-align: center; color: gray; font-size: 0.8rem;">+ 35 more features available in full build.</div>
             </div>
         </div>
     </div>
@@ -146,7 +154,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, query, where, onSnapshot, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, onSnapshot, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBUBXYI1Rku7hhUN2VNUNw3cEsg7xG9xwY",
@@ -161,37 +169,108 @@
         const db = getFirestore(app);
 
         let me = null; let myData = null; let activeChat = null;
+        let allUsersCache = []; // For live search
 
-        // APP LOCK LOGIC
-        if(localStorage.getItem('appLock') === 'true') {
-            document.getElementById('pin-screen').classList.add('active');
-            document.getElementById('toggle-lock').checked = true;
+        // ==============================
+        // CUSTOM PIN SYSTEM LOGIC
+        // ==============================
+        let pinActionState = ''; // 'set_new', 'disable_verify', 'change_verify_old', 'change_set_new'
+
+        function checkInitialLock() {
+            if(localStorage.getItem('appPin')) {
+                document.getElementById('lock-screen').classList.add('active');
+                document.getElementById('toggle-lock').checked = true;
+                document.getElementById('change-pin-row').style.display = 'flex';
+            }
         }
+        checkInitialLock();
 
-        window.toggleLock = () => {
-            const isLocked = document.getElementById('toggle-lock').checked;
-            localStorage.setItem('appLock', isLocked);
-            alert(isLocked ? "App Lock Enabled! PIN is 1234" : "App Lock Disabled.");
+        window.unlockApp = () => {
+            if(document.getElementById('unlock-pin').value === localStorage.getItem('appPin')) {
+                document.getElementById('lock-screen').classList.remove('active');
+                document.getElementById('unlock-pin').value = '';
+            } else { alert("Incorrect PIN!"); document.getElementById('unlock-pin').value = ''; }
         };
 
-        window.checkPin = () => {
-            if(document.getElementById('pin-input').value === '1234') {
-                document.getElementById('pin-screen').classList.remove('active');
-            } else { alert("Wrong PIN!"); }
+        window.handleLockToggle = () => {
+            const isChecked = document.getElementById('toggle-lock').checked;
+            if (isChecked) {
+                // User wants to turn it ON
+                openPinModal('set_new', 'Set App PIN', 'Enter a 4-digit PIN to secure your app.');
+            } else {
+                // User wants to turn it OFF, must verify old PIN
+                document.getElementById('toggle-lock').checked = true; // Keep UI checked until verified
+                openPinModal('disable_verify', 'Verify PIN', 'Enter your current PIN to disable App Lock.');
+            }
         };
 
-        // AUTH
+        window.initiatePinChange = () => {
+            openPinModal('change_verify_old', 'Change PIN (Step 1)', 'Enter your CURRENT password/PIN.');
+        };
+
+        window.openPinModal = (state, title, desc) => {
+            pinActionState = state;
+            document.getElementById('pin-modal-title').innerText = title;
+            document.getElementById('pin-modal-desc').innerText = desc;
+            document.getElementById('pin-input-field').value = '';
+            document.getElementById('custom-pin-modal').classList.add('active');
+        };
+
+        window.closePinModal = () => {
+            document.getElementById('custom-pin-modal').classList.remove('active');
+            // Reset toggle if they cancelled setting a new PIN
+            if(pinActionState === 'set_new' && !localStorage.getItem('appPin')) {
+                document.getElementById('toggle-lock').checked = false;
+            }
+        };
+
+        window.submitPinAction = () => {
+            const inputVal = document.getElementById('pin-input-field').value;
+            if(inputVal.length < 4) return alert("PIN must be at least 4 digits.");
+
+            if (pinActionState === 'set_new') {
+                localStorage.setItem('appPin', inputVal);
+                document.getElementById('change-pin-row').style.display = 'flex';
+                alert("PIN Set Successfully!");
+                closePinModal();
+            } 
+            else if (pinActionState === 'disable_verify') {
+                if(inputVal === localStorage.getItem('appPin')) {
+                    localStorage.removeItem('appPin');
+                    document.getElementById('toggle-lock').checked = false;
+                    document.getElementById('change-pin-row').style.display = 'none';
+                    alert("App Lock Disabled.");
+                    closePinModal();
+                } else { alert("Incorrect Current PIN!"); }
+            }
+            else if (pinActionState === 'change_verify_old') {
+                if(inputVal === localStorage.getItem('appPin')) {
+                    openPinModal('change_set_new', 'Change PIN (Step 2)', 'Great! Now enter your NEW 4-digit PIN.');
+                } else { alert("Incorrect Current PIN!"); }
+            }
+            else if (pinActionState === 'change_set_new') {
+                localStorage.setItem('appPin', inputVal);
+                alert("PIN Changed Successfully!");
+                closePinModal();
+            }
+        };
+
+        // ==============================
+        // AUTH & LIVE SEARCH LOGIC
+        // ==============================
         window.handleAuth = async (isLoginMode) => {
             const email = document.getElementById('auth-email').value;
             const pass = document.getElementById('auth-pass').value;
+            const err = document.getElementById('auth-err');
             try {
                 if(isLoginMode) await signInWithEmailAndPassword(auth, email, pass);
                 else {
                     const name = document.getElementById('reg-name').value;
+                    if(!name) return err.innerText = "Name required to register.";
                     const res = await createUserWithEmailAndPassword(auth, email, pass);
                     await setDoc(doc(db, "users", res.user.uid), { uid: res.user.uid, email: email.toLowerCase(), name: name });
                 }
-            } catch(e) { document.getElementById('auth-err').innerText = e.message; }
+            } catch(e) { err.innerText = e.message; }
         };
 
         onAuthStateChanged(auth, async (user) => {
@@ -199,27 +278,72 @@
                 me = user;
                 const d = await getDoc(doc(db, "users", user.uid)); myData = d.data();
                 document.getElementById('auth-screen').classList.remove('active');
-                if(localStorage.getItem('appLock') !== 'true') document.getElementById('main-screen').classList.add('active');
-                loadFriends(); loadReqs();
+                if(!localStorage.getItem('appPin')) document.getElementById('main-screen').classList.add('active');
+                loadFriends(); loadReqs(); fetchUsersForSearch(); // Fetch cache for search
             }
         });
 
-        // FRIENDS & REQS
-        window.sendFriendReq = async () => {
-            const target = document.getElementById('s-email').value.toLowerCase();
-            const qU = query(collection(db, "users"), where("email", "==", target));
-            const snap = await getDocs(qU);
-            if(snap.empty) return alert("User not found!");
-            await addDoc(collection(db, "requests"), { from: me.uid, fromName: myData.name, to: snap.docs[0].data().uid, status: 'pending' });
-            alert("Sent!");
+        async function fetchUsersForSearch() {
+            // Load all users once into cache for instant local filtering
+            const snap = await getDocs(collection(db, "users"));
+            allUsersCache = snap.docs.map(d => d.data());
+        }
+
+        window.suggestUsers = () => {
+            const queryText = document.getElementById('s-input').value.toLowerCase();
+            const box = document.getElementById('suggestions-box');
+            box.innerHTML = '';
+
+            if (queryText.trim() === '') {
+                box.style.display = 'none'; return;
+            }
+
+            // Filter users based on name OR email keywords
+            const matches = allUsersCache.filter(u => 
+                (u.name.toLowerCase().includes(queryText) || u.email.toLowerCase().includes(queryText)) 
+                && u.uid !== me.uid
+            );
+
+            if (matches.length > 0) {
+                matches.forEach(m => {
+                    const div = document.createElement('div');
+                    div.className = 'suggest-item';
+                    div.innerHTML = `<span style="font-size:1.5rem;">👤</span> <div><strong>${m.name}</strong><br><span style="font-size:0.8rem;color:gray;">${m.email}</span></div>`;
+                    div.onclick = () => { 
+                        document.getElementById('s-input').value = m.email; // Auto-fill
+                        box.style.display = 'none'; // Hide dropdown
+                    };
+                    box.appendChild(div);
+                });
+                box.style.display = 'block';
+            } else {
+                box.style.display = 'none';
+            }
         };
 
+        // Hide suggestions if clicked outside
+        document.addEventListener('click', (e) => {
+            if(e.target.id !== 's-input') document.getElementById('suggestions-box').style.display = 'none';
+        });
+
+        window.sendFriendReq = async () => {
+            const target = document.getElementById('s-input').value.toLowerCase();
+            const targetUser = allUsersCache.find(u => u.email === target);
+            if(!targetUser) return alert("User not found!");
+            await addDoc(collection(db, "requests"), { from: me.uid, fromName: myData.name, to: targetUser.uid, status: 'pending' });
+            alert("Request Sent!");
+            document.getElementById('s-input').value = '';
+        };
+
+        // ==============================
+        // FRIENDS & MESSAGING (Core)
+        // ==============================
         function loadReqs() {
             onSnapshot(query(collection(db, "requests"), where("to", "==", me.uid)), (snap) => {
                 const cont = document.getElementById('reqs-list-container'); cont.innerHTML = "";
                 snap.forEach(d => {
                     const r = d.data();
-                    cont.innerHTML += `<div class="list-item"><div class="item-info">${r.fromName} wants to connect. <button onclick="acceptReq('${d.id}', '${r.from}', '${r.fromName}')">Accept</button></div></div>`;
+                    cont.innerHTML += `<div class="list-item"><div class="item-info">${r.fromName} wants to connect. <button onclick="acceptReq('${d.id}', '${r.from}', '${r.fromName}')" class="btn-small">Accept</button></div></div>`;
                 });
             });
         }
@@ -247,7 +371,6 @@
             onSnapshot(query(collection(db, "friends"), where("u2", "==", me.uid)), s => render(s, false));
         }
 
-        // CHAT & 1-TIME SNAP
         let msgUnsub = null;
         window.openChat = (name, cid) => {
             activeChat = cid; document.getElementById('chat-title').innerText = name;
@@ -260,15 +383,8 @@
                     const isMe = m.sender === me.uid;
                     const b = document.createElement('div');
                     b.className = `bubble ${isMe?'sent':'received'}`;
-                    
-                    if(m.isSnap) {
-                        b.innerText = "💣 Tap to View 1-Time Snap";
-                        b.style.background = "var(--danger)"; b.style.color = "white";
-                        b.onclick = () => { alert("Viewing Snap..."); deleteDoc(doc(db, "messages", m.id)); };
-                    } else {
-                        b.innerText = m.txt;
-                        if(isMe) b.onclick = () => { if(confirm("Delete message?")) deleteDoc(doc(db, "messages", m.id)); };
-                    }
+                    b.innerText = m.txt;
+                    if(isMe) b.onclick = () => { if(confirm("Delete message?")) deleteDoc(doc(db, "messages", m.id)); };
                     mCont.appendChild(b);
                 });
                 mCont.scrollTop = mCont.scrollHeight;
@@ -277,12 +393,8 @@
 
         window.sendMsg = async () => {
             const txt = document.getElementById('m-input').value; if(!txt) return;
-            await addDoc(collection(db, "messages"), { cid: activeChat, sender: me.uid, txt: txt, t: Date.now(), isSnap: false });
+            await addDoc(collection(db, "messages"), { cid: activeChat, sender: me.uid, txt: txt, t: Date.now() });
             document.getElementById('m-input').value = "";
-        };
-
-        window.sendSnap = async () => {
-            await addDoc(collection(db, "messages"), { cid: activeChat, sender: me.uid, txt: "Snap", t: Date.now(), isSnap: true });
         };
 
         window.closeChat = () => { document.getElementById('chat-window').classList.remove('active'); document.getElementById('main-screen').classList.add('active'); };
